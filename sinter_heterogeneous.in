@@ -4,19 +4,13 @@ units           metal
 dimension       3
 boundary        p p p
 atom_style      atomic
-read_data 30-15wz-zn.lmp
+read_data 30-15wz-zn.lmp  # initial configuration of sperical NPs.
  
 region B sphere 29.6 40 31 30 side in
 region C sphere 29.6 40 79 15 side in
-region d sphere 29.6 40 31 25 side in
-region e sphere 29.6 40 79 10 side in
-
-
-write_data particle-3025.data
-
 
 pair_style	sw
-pair_coeff	* * AlInGaAs.SW Ga N In
+pair_coeff	* * InGaN.SW Ga N In # potential information
  
 neighbor        2.0 bin
 neigh_modify	delay 0 every 1
@@ -26,22 +20,17 @@ group Ga type 1
 group N type 2
 group Gp_B region B
 group Gp_S region C
-group Gp_Bi region d
-group Gp_Sm region e
 
 compute 1 Gp_B msd
 compute  2 Gp_S msd
 compute 3 all msd
 compute 4 Gp_S com
 compute 5 Gp_B com
-compute 6 Gp_Sm com
-compute 7 Gp_Bi com
-variable cm equal sqrt((c_4[1]-c_5[1])^2+(c_4[2]-c_5[2])^2+(c_4[3]-c_5[3])^2)
-variable dm equal sqrt((c_6[1]-c_7[1])^2+(c_6[2]-c_7[2])^2+(c_6[3]-c_7[3])^2)
+variable cm equal sqrt((c_4[1]-c_5[1])^2+(c_4[2]-c_5[2])^2+(c_4[3]-c_5[3])^2)  # calculation of distance between center of mass of NPs
 log log.eq
 
-fix 1 all nvt temp 300 300 1 
-thermo_style custom step temp pe etotal c_1[4] c_2[4] c_3[4]  v_cm v_dm
+fix 1 all nvt temp 300 300 1  # integration 
+thermo_style custom step temp pe etotal c_1[4] c_2[4] c_3[4]  v_cm 
 dump 1 all atom 2000 sinterEq-$t(3015).atom
 
 thermo 1000
@@ -53,7 +42,7 @@ undump    1
 log log.heating
 
 fix 2 all nvt temp 300 $t 1 
-thermo_style custom step temp pe etotal c_1[4] c_2[4] c_3[4]  v_cm v_dm
+thermo_style custom step temp pe etotal c_1[4] c_2[4] c_3[4]  v_cm 
 dump 2 all atom 2000 sinter-Heating-$t(3015).atom
 thermo 1000
 timestep 0.001
@@ -63,7 +52,7 @@ undump   2
 log log.sintering
 
 fix 3 all nvt temp $t $t 1 
-thermo_style custom step temp pe etotal c_1[4] c_2[4] c_3[4]  v_cm v_dm
+thermo_style custom step temp pe etotal c_1[4] c_2[4] c_3[4]  v_cm 
 
 dump 3 all atom 5000 sinter3015-$t.atom
 thermo 1000
